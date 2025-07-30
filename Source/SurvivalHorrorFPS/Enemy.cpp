@@ -4,6 +4,8 @@
 #include "Enemy.h"
 #include "SurvivalHorrorFPSCharacter.h"
 #include "AIController.h"
+#include "Navigation/PathFollowingComponent.h"
+
 // Sets default values
 AEnemy::AEnemy()
 {
@@ -16,6 +18,10 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	EnemyAIC = Cast<AAIController>(GetController());
+
+	SeekPlayer();
 	
 }
 
@@ -35,6 +41,16 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::SeekPlayer()
 {
-	
+	GetWorld()->GetTimerManager().SetTimer(SeekPlayerTH, this, &AEnemy::SeekPlayer, 0.25f, true);
+
+	if (PlayerREF)
+	{
+		EnemyAIC->MoveToLocation(PlayerREF->GetActorLocation(), StoppingDistance,true);
+	}
+	else
+	{
+		PlayerREF = Cast<ASurvivalHorrorFPSCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+		SeekPlayer();
+	}
 }
 
